@@ -2,6 +2,8 @@ import json
 import os
 import re
 import time
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.request
 import urllib.parse
 from datetime import datetime
@@ -215,34 +217,4 @@ def handle_update(message):
             f"🧠 <b>Gemini посчитал и сохранил в JSONBin:</b>\n"
             f"<b>{summary}</b>\n"
             f"{breakdown_str}\n\n"
-            f"🔥 <b>+{cals} ккал</b> (Б: {p}г | Ж: {f}г | У: {c}г)\n"
-            f"━━━━━━━━━━━━━━\n"
-            f"📈 <b>Итого за день:</b> {today_total:.1f} / {target} ккал\n"
-            f"🟢 <b>Осталось до нормы:</b> {rem:.1f} ккал\n"
-            f"🍗 Белок сегодня: <b>{day_data['totals']['protein']:.1f}г</b> / 140г\n\n"
-            f"<i>💡 {comment}</i>"
-        )
-        send_telegram(chat_id, reply)
-    elif ai_res and not ai_res.get("is_meal"):
-        send_telegram(chat_id, ai_res.get("reply", "Понял тебя!"))
-    else:
-        send_telegram(chat_id, "Записал, но не удалось точно посчитать КБЖУ. Напиши подробнее!")
-
-def main():
-    print("Cloud-connected Gemini Diet Bot started...")
-    last_update_id = 0
-    while True:
-        try:
-            updates = http_request(f"{TELEGRAM_API_URL}/getUpdates?offset={last_update_id + 1}&timeout=20")
-            if updates and updates.get("ok"):
-                for item in updates.get("result", []):
-                    last_update_id = item["update_id"]
-                    if "message" in item:
-                        handle_update(item["message"])
-        except Exception as e:
-            print(f"Polling loop: {e}")
-            time.sleep(3)
-        time.sleep(1)
-
-if __name__ == "__main__":
-    main()
+            f"🔥 <b>+{cals} ккал</b> (
